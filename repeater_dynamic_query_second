@@ -1,0 +1,45 @@
+function repeater_dynamic_query_second( $query ) {
+    $per_page = 4;
+	  
+
+	$term_id = get_queried_object()->term_id;
+  
+	
+	if ( $query->query['post_type'][0] == 'post' ) {
+		$query->set( 'no_found_rows', false );
+		if (is_category()) {
+			$query->set( 'cat', $term_id);
+		}
+		if (is_tag()) {
+			
+			$query->set( 'tag_id', $term_id);
+		}
+      
+    	//First, define your desired offset...
+    	$offset = 1;
+		$query->set('posts_per_page',$per_page);
+    
+    	
+    	//Next, detect and handle pagination...
+    	if ( $query->is_paged ) {
+
+        	//Manually determine page query offset (offset + current page (minus one) x posts per page)
+			//Add 6 from the other reeater, so posts dont get repeated on the following page
+        	$page_offset = $offset + ( ($query->query_vars['paged']-1) * ($per_page + 6) );
+
+        	//Apply adjust page offset
+        	$query->set('offset', $page_offset );
+
+    	} else {
+			
+			//This is the first page. Just use the offset...
+        	$query->set('offset',$offset);
+			
+		}
+
+    }
+
+
+  }
+
+add_action( 'pre_get_posts', 'repeater_dynamic_query_second', 1 );

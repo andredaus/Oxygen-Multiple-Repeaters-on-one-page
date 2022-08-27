@@ -1,0 +1,32 @@
+function repeater_dynamic_query_first( $query ) {
+    $per_page = 1;
+	  
+
+	$term_id = get_queried_object()->term_id;
+   
+	
+	if ( $query->query['post_type'][0] == 'post' ) {
+		$query->set( 'no_found_rows', true );
+		if (is_category()) {
+			$query->set( 'cat', $term_id);
+		}
+		if (is_tag()) {
+			
+			$query->set( 'tag_id', $term_id);
+		}
+      
+    	//First, define your desired offset...
+    	$offset = 0;
+    
+  		
+		//This is the first page. Just use the offset and do so for all other pages as well (skip any pagination, only show the latest post)
+        $query->set('offset',$offset);
+		$query->set('posts_per_page',$per_page);
+
+
+    }
+
+
+  }
+
+add_action( 'pre_get_posts', 'repeater_dynamic_query_first', 1 );
